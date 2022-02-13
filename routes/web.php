@@ -25,9 +25,18 @@ Route::get('/checkauth', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::get('/create_post', [App\Http\Controllers\PostController::class, 'create'])->name('create_post');
-Route::post('/store_post', [App\Http\Controllers\PostController::class, 'store'])->name('post_submit');
-Route::get('/edit_post/{id}', [App\Http\Controllers\PostController::class, 'edit'])->name('edit_post');
-Route::put('/update_post/{id}', [App\Http\Controllers\PostController::class, 'update'])->name('update_post');
-Route::delete('/delete_post/{id}', [App\Http\Controllers\PostController::class, 'destroy'])->name('delete_post');
+Route::get('/show_post/{id}', [App\Http\Controllers\PostController::class, 'show'])->name('show');
+
+Route::group(['middleware' => ['auth']], function () {
+
+    Route::get('/create_post', [App\Http\Controllers\PostController::class, 'create'])->name('create_post');
+    Route::post('/store_post', [App\Http\Controllers\PostController::class, 'store'])->name('post_submit');
+    Route::get('/edit_post/{id}', [App\Http\Controllers\PostController::class, 'edit'])->name('edit_post');
+    Route::put('/update_post/{id}', [App\Http\Controllers\PostController::class, 'update'])->name('update_post');
+    Route::delete('/delete_post/{id}', [App\Http\Controllers\PostController::class, 'destroy'])->name('delete_post');
+
+    Route::post('/comment/{id}', [App\Http\Controllers\PostController::class, 'commentStore'])->name('commentStore');
+    Route::delete('/delete_comment/{id}', [App\Http\Controllers\PostController::class, 'commentDelete'])->name('commentDelete');
+
+});
 

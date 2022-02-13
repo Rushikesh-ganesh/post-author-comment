@@ -7,35 +7,23 @@ use App\Models\PostModel;
 use Illuminate\Support\Facades\Validator;
 use Auth;
 use Redirect,Response;
+use App\Models\PostCommentModel;
 
 class PostController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+   
     public function index()
     {
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    
     public function create()
     {
         return view('edit_post');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+  
     public function store(Request $request)
     {
 
@@ -60,23 +48,18 @@ class PostController extends Controller
 
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+   
     public function show($id)
     {
-        //
+
+      $post_data = PostModel::where('id',$id)->with(['Author','comments'=>function($q){
+           $q->with('commented_by');
+      }])->first();
+    //   dd($post_data);
+      return view('show_post',compact('post_data'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    
     public function edit($id)
     {
         $post_data =  PostModel::where('id',$id)->first();
@@ -87,13 +70,7 @@ class PostController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -116,12 +93,7 @@ class PostController extends Controller
          }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+  
     public function destroy($id)
     {
         if($id){
@@ -131,4 +103,35 @@ class PostController extends Controller
             return Response::json(['error'=>'Post Not Deleted Successfully.']);  
         }
     }
+
+
+    public function commentStore(Request $request,$id){
+        $validator = Validator::make($request->all(), [
+            'comment_post' => 'required',
+        ]);
+ 
+        if ($validator->fails()) {
+            return redirect(route('edit_post',$id))
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
+        $data_stored =  PostCommentModel::create(['post_comment'=> $request->comment_post,'post_id'=>$id ,'user_id' => Auth::user()->id]);
+
+         if($data_stored){
+            return redirect()->route('show',$id)->with('success','Comment has been Added successfully.');
+         }else{
+            return redirect()->route('show',$id)->with('error','Somthing Went Wrong.');
+         }
+    }
+    public function commentDelete($id)
+    {
+        if($id){
+            PostCommentModel::where('id',$id)->delete();
+             return Response::json(['success'=>'Comment Deleted Successfully.']);
+        }else{
+            return Response::json(['error'=>'Comment Not Deleted Successfully.']);  
+        }
+    }
+    
 }

@@ -18,4 +18,8 @@ class PostModel extends Model
         return $this->hasOne('App\Models\User', 'id','author_id');
     }
 
+    public function comments(){
+        return $this->hasMany('App\Models\PostCommentModel', 'post_id','id');
+    }
+
 }

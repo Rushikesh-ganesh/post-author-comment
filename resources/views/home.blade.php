@@ -19,7 +19,7 @@
                 <div class="card-body text-dark bg-light ">
                     <p class="card-text">{{ $post->post_description }}</p>
 
-                    <a href="#" class="btn btn-primary" onclick="checkauth({{$post->id}})">View More</a>
+                    <a href="#" class="btn btn-primary" onclick="showPost({{$post->id}})">View More</a>
                     <hr>
                     @if (Auth::check())
                       @if (Auth::user()->id == $post->author_id)
@@ -120,6 +120,25 @@ function deletepost(id){
 
   }
 })
+}
+
+function showPost(id) {
+
+    let url = "{{ route('show', ':id') }}";
+                    url = url.replace(':id', id);
+                    document.location.href=url;
+
+    console.log("herr");
+    // $.ajax({
+    //         type: "GET",
+    //         url: "{{ url('show_post')}}"+"/"+id,
+    //         success: function (data) {
+
+    //         },  error: function (data) {
+    //             console.log('Error:', data);
+    //         }
+    //     });
+
 }
 
 </script>
