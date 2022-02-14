@@ -72,8 +72,10 @@
                             {{$item->post_comment}}
                         </p>
                     @if (Auth::check())
+                    @if (Auth::user()->id == $post_data->author_id)
                         <a href="#!" onclick="deleteComment({{$item->id}})" class="btn btn-danger mt-3"
                         >Delete comment</a>
+                      @endif
                     @endif
                   </div>
                 </div>
